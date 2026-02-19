@@ -272,7 +272,6 @@ useEffect(() => {
     setHealthProfile(null);
     localStorage.removeItem("user");
     localStorage.removeItem("healthProfile");
-    setShowSplash(true);
   };
 
   const updateHealthProfile = (profile: UserHealthProfile) => {

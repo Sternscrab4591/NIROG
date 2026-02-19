@@ -2,28 +2,30 @@ import { Menu, X } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { ThemeToggle } from "./ThemeToggle";
+import logo from "../../nirog-logo.png";
 
 
 export function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 bg-background border-b border-border backdrop-blur-sm">
-      <div className="flex items-center justify-between px-4 py-4 md:px-6">
+    <header
+      className="sticky top-0 z-40 bg-background border-b border-border"
+      style={{ paddingTop: "env(safe-area-inset-top)" }}
+>
+      <div className="flex items-center justify-between px-4 py-2 md:px-6">
         {/* Logo */}
-        <Link to="/" className="flex items-center gap-2">
+        <Link to="/" className="flex items-center gap-3">
           <img 
-            src="/nirog-logo.png" 
-            alt="NIROG Logo" 
-            className="w-9 h-9 object-contain flex-shrink-0"
+            src={logo}
+            alt="NIROG Logo"
+            className="w-12 h-12 object-contain"
           />
-          <span className="font-bold text-xl hidden sm:inline 
-            text-black 
-            dark:bg-gradient-to-r dark:from-white dark:to-blue-200 
-            dark:bg-clip-text dark:text-transparent">
+          
+          <span className="text-2xl font-bold tracking-wide 
+            text-black dark:text-white">
             NIROG
           </span>
-
         </Link>
 
         {/* Menu */}

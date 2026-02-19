@@ -4,6 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { AlertCircle, Loader } from "lucide-react";
+import logo from "../nirog-logo.png";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -37,10 +38,8 @@ export default function Login() {
 
       {/* Logo */}
       <div className="mb-10">
-        <img
-          src="/nirog-logo.png"
-          alt="NIROG Logo"
-          className="w-40 object-contain mx-auto drop-shadow-[0_0_25px_rgba(59,130,246,0.4)]"
+        <img src={logo} alt="NIROG Logo" 
+        className="w-40 object-contain mx-auto drop-shadow-[0_0_25px_rgba(59,130,246,0.4)]" 
         />
       </div>
 

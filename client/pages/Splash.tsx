@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import logo from "../nirog-logo.png";
 
 export default function Splash() {
   const [progress, setProgress] = useState(0);
@@ -25,7 +26,7 @@ export default function Splash() {
       
       {/* Logo */}
       <img
-        src="/nirog-logo.png"
+        src={logo}
         alt="NIROG Logo"
         className="w-28 h-28 object-contain mb-6 drop-shadow-[0_0_20px_rgba(255,255,255,0.3)]"
       />

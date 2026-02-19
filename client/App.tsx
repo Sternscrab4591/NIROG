@@ -170,7 +170,7 @@ const App = () => {
     if (Capacitor.isNativePlatform()) {
 
       // Fix header under battery
-      await StatusBar.setOverlaysWebView({ overlay: false });
+      StatusBar.setOverlaysWebView({ overlay: false });
 
       handler = await CapacitorApp.addListener("backButton", () => {
 
