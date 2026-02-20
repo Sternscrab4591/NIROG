@@ -8,6 +8,9 @@ import { calculateBMI } from "@/types/health";
 import { useState } from "react";
 
 export default function Profile() {
+  const [editingMetric, setEditingMetric] = useState<any>(null);
+  const { updateHealthProfile } = useAuth();
+
   const { user, healthProfile, logout } = useAuth();
   const navigate = useNavigate();
 
@@ -188,6 +191,14 @@ export default function Profile() {
                       key={i}
                       className="flex items-center justify-between p-3 bg-secondary/50 rounded"
                     >
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => setEditingMetric(metric)}
+                    >
+                      Edit
+                    </Button>
+
                       <span className="text-sm text-foreground/70">
                         {new Date(metric.date).toLocaleDateString(
                           "en-US",
@@ -222,6 +233,80 @@ export default function Profile() {
                   );
                 })}
               </div>
+
+              {editingMetric && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+                  <div className="bg-card p-6 rounded-lg w-80 space-y-4">
+                    <h3 className="font-semibold">Edit Blood Pressure</h3>
+
+                    <input
+                      type="number"
+                      value={editingMetric.systolicBP}
+                      onChange={(e) =>
+                        setEditingMetric({
+                          ...editingMetric,
+                          systolicBP: parseInt(e.target.value),
+                        })
+                      }
+                      className="w-full px-3 py-2 rounded-md 
+                                bg-background 
+                                text-foreground 
+                                border border-border 
+                                focus:outline-none 
+                                focus:ring-2 focus:ring-primary"
+                    />
+
+                    <input
+                      type="number"
+                      value={editingMetric.diastolicBP}
+                      onChange={(e) =>
+                        setEditingMetric({
+                          ...editingMetric,
+                          diastolicBP: parseInt(e.target.value),
+                        })
+                      }
+                      className="w-full px-3 py-2 rounded-md 
+                                bg-background 
+                                text-foreground 
+                                border border-border 
+                                focus:outline-none 
+                                focus:ring-2 focus:ring-primary"
+                    />
+
+                    <div className="flex justify-between">
+                      <Button
+                        variant="outline"
+                        onClick={() => setEditingMetric(null)}
+                      >
+                        Cancel
+                      </Button>
+
+                      <Button
+                        onClick={() => {
+                          if (!healthProfile) return;
+
+                          const updatedMetrics = healthProfile.dailyMetrics.map(
+                            (m) =>
+                              m.date === editingMetric.date
+                                ? editingMetric
+                                : m
+                          );
+
+                          updateHealthProfile({
+                            ...healthProfile,
+                            dailyMetrics: updatedMetrics,
+                            lastUpdated: new Date().toISOString(),
+                          });
+
+                          setEditingMetric(null);
+                        }}
+                      >
+                        Save
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* Legend */}
               <div className="mt-4 text-xs space-y-1">

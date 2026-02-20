@@ -82,116 +82,92 @@ export function calculateRiskScore(profile: UserHealthProfile): {
   let score = 0;
   const factors: string[] = [];
 
-  // Age risk (increases after 40)
+  // 🔹 Age (reduced weight)
   if (profile.personalInfo.age > 60) {
-    score += 25;
-    factors.push('Age over 60');
-  } else if (profile.personalInfo.age > 50) {
-    score += 15;
-    factors.push('Age between 50-60');
-  } else if (profile.personalInfo.age > 40) {
     score += 10;
-    factors.push('Age between 40-50');
+    factors.push('Age over 60');
+  } else if (profile.personalInfo.age > 45) {
+    score += 6;
+    factors.push('Age over 45');
   }
 
-  // BMI risk
+  // 🔹 BMI (reduced weight)
   const bmi = calculateBMI(
     profile.personalInfo.height,
     profile.personalInfo.weight
   );
+
   if (bmi > 30) {
-    score += 20;
-    factors.push('Obesity (BMI > 30)');
+    score += 8;
+    factors.push('Obesity');
   } else if (bmi > 25) {
-    score += 10;
-    factors.push('Overweight (BMI 25-30)');
+    score += 5;
+    factors.push('Overweight');
   }
 
-  // Medical conditions
+  // 🔹 Conditions (reduced)
   if (profile.medicalHistory.conditions.length > 0) {
-    score += 15;
-    factors.push(
-      `${profile.medicalHistory.conditions.length} chronic condition(s)`
-    );
+    score += 6;
+    factors.push('Chronic conditions');
   }
 
-  // Medications
-  if (profile.medicalHistory.medications.length > 0) {
-    score += 5;
-    factors.push(`On ${profile.medicalHistory.medications.length} medication(s)`);
-  }
-
-  // Family history
-  if (profile.familyHistory.members.length > 0) {
-    score += 10;
-    factors.push('Family history of disease');
-  }
-
-  // Lifestyle factors
+  // 🔹 Lifestyle (reduced)
   if (profile.lifestyle.stressLevel === 'High') {
-    score += 10;
-    factors.push('High stress levels');
-  } else if (profile.lifestyle.stressLevel === 'Moderate') {
     score += 5;
-    factors.push('Moderate stress levels');
+    factors.push('High stress');
   }
 
   if (profile.lifestyle.averageSleep < 6) {
-    score += 15;
-    factors.push('Insufficient sleep (< 6 hours)');
-  } else if (profile.lifestyle.averageSleep < 7) {
-    score += 5;
-    factors.push('Suboptimal sleep (< 7 hours)');
+    score += 6;
+    factors.push('Poor sleep');
   }
 
   if (profile.lifestyle.smokerStatus === 'Current') {
-    score += 20;
-    factors.push('Current smoker');
-  } else if (profile.lifestyle.smokerStatus === 'Former') {
-    score += 5;
-    factors.push('Former smoker');
-  }
-
-  if (
-    profile.lifestyle.exerciseFrequency ===
-    'Sedentary'
-  ) {
-    score += 15;
-    factors.push('Sedentary lifestyle');
-  } else if (
-    profile.lifestyle.exerciseFrequency ===
-    'Occasional'
-  ) {
     score += 8;
-    factors.push('Occasional exercise');
+    factors.push('Current smoker');
   }
 
-  // Recent BP readings
-  if (profile.dailyMetrics.length > 0) {
-    const recentMetrics = profile.dailyMetrics.slice(-7);
-    const avgSystolic =
-      recentMetrics.reduce((sum, m) => sum + m.systolicBP, 0) /
-      recentMetrics.length;
-    const avgDiastolic =
-      recentMetrics.reduce((sum, m) => sum + m.diastolicBP, 0) /
-      recentMetrics.length;
-
-    if (avgSystolic > 160 || avgDiastolic > 100) {
-      score += 20;
-      factors.push('High blood pressure (Stage 2)');
-    } else if (avgSystolic > 140 || avgDiastolic > 90) {
-      score += 15;
-      factors.push('Elevated blood pressure (Stage 1)');
-    } else if (avgSystolic > 130 || avgDiastolic > 80) {
-      score += 8;
-      factors.push('Elevated blood pressure');
-    }
+  if (profile.lifestyle.exerciseFrequency === 'Sedentary') {
+    score += 6;
+    factors.push('Sedentary lifestyle');
   }
+
+  // 🔥🔥🔥 BLOOD PRESSURE — HIGH IMPACT
+  // Dynamic BP contribution (Strong weight)
+if (profile.dailyMetrics.length > 0) {
+  const recentMetrics = profile.dailyMetrics.slice(-7);
+
+  const avgSystolic =
+    recentMetrics.reduce((sum, m) => sum + m.systolicBP, 0) /
+    recentMetrics.length;
+
+  const avgDiastolic =
+    recentMetrics.reduce((sum, m) => sum + m.diastolicBP, 0) /
+    recentMetrics.length;
+
+  // Base normal values
+  const normalSys = 120;
+  const normalDia = 80;
+
+  // Calculate how much above normal
+  const sysExcess = Math.max(0, avgSystolic - normalSys);
+  const diaExcess = Math.max(0, avgDiastolic - normalDia);
+
+  // Scale aggressively
+  const bpScore = (sysExcess * 0.8) + (diaExcess * 0.6);
+
+  score += Math.min(bpScore, 40); // Cap BP contribution at 40%
+
+  if (sysExcess > 0 || diaExcess > 0) {
+    factors.push("Elevated Blood Pressure");
+  }
+}
 
   // Cap score at 100
-  score = Math.min(score, 100);
+  score = Math.min(Math.round(score), 100);
 
   let riskLevel: 'Low' | 'Moderate' | 'High' | 'Critical';
+
   if (score < 25) riskLevel = 'Low';
   else if (score < 50) riskLevel = 'Moderate';
   else if (score < 75) riskLevel = 'High';

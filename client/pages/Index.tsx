@@ -4,13 +4,18 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Heart, Activity, Plus, AlertCircle, ChevronRight } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { calculateRiskScore, calculateBMI } from "@/types/health";
 
 export default function Index() {
   const { user, healthProfile } = useAuth();
   const navigate = useNavigate();
   const [show3DView, setShow3DView] = useState(false);
+  const [riskScore, setRiskScore] = useState(0);
+  const [riskLevel, setRiskLevel] = useState<'Low' | 'Moderate' | 'High' | 'Critical'>('Low');
+  const [riskFactors, setRiskFactors] = useState<string[]>([]);
+  const [riskChange, setRiskChange] = useState(0);
+  const previousRiskRef = useRef<number | null>(null);
 
   if (!user) {
     navigate("/login");
@@ -18,31 +23,48 @@ export default function Index() {
   }
 
   const hasCompletedOnboarding = user.hasCompletedOnboarding;
-  let riskScore = 35;
-  let riskLevel = "Moderate";
-  let riskFactors: string[] = [];
-  let bmi = 0;
 
- if (healthProfile) {
+  useEffect(() => {
+  if (!healthProfile) return;
+
   const risk = calculateRiskScore(healthProfile);
 
-  // Force 73% ONLY for Rajesh demo account
-  if (user.email === "rajesh@example.com") {
-    riskScore = 73;
-  } else {
-    riskScore = risk.riskScore;
+  const prev = previousRiskRef.current;
+
+  // First time mount → just store baseline
+  if (prev === null) {
+    previousRiskRef.current = risk.riskScore;
+    setRiskScore(risk.riskScore);
+    setRiskLevel(risk.riskLevel);
+    setRiskFactors(risk.factors);
+    return;
   }
 
-  riskLevel = risk.riskLevel;
-  riskFactors = risk.factors;
+  // If value changed
+  if (risk.riskScore !== prev) {
+    const diff = risk.riskScore - prev;
 
-  bmi = calculateBMI(
-    healthProfile.personalInfo.height,
-    healthProfile.personalInfo.weight
-  );
-}
+    setRiskChange(diff);
 
+    setTimeout(() => {
+      setRiskChange(0);
+    }, 3000);
 
+    previousRiskRef.current = risk.riskScore;
+    setRiskScore(risk.riskScore);
+  }
+
+  setRiskLevel(risk.riskLevel);
+  setRiskFactors(risk.factors);
+
+}, [healthProfile]);
+
+  const bmi = healthProfile
+    ? calculateBMI(
+        healthProfile.personalInfo.height,
+        healthProfile.personalInfo.weight
+      )
+    : 0;
   return (
     <div className="min-h-screen bg-background pb-24">
       <Header />
@@ -127,6 +149,18 @@ export default function Index() {
 
               {/* Progress Bar */}
                 <div className="space-y-3 mb-6">
+
+                  {riskChange !== 0 && (
+                    <div
+                      className={`text-sm font-semibold mt-2 transition-opacity duration-700 ${
+                        riskChange > 0
+                          ? "text-red-500"
+                          : "text-green-500"
+                      }`}
+                    >
+                      {riskChange > 0 ? "▲" : "▼"} {Math.abs(riskChange)}% change
+                    </div>
+                  )}
 
                   {/* Labels */}
                   <div className="flex justify-between text-xs font-medium">

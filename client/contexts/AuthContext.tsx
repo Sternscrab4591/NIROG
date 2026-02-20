@@ -154,17 +154,17 @@ useEffect(() => {
             date: "2024-01-20",
             steps: 4200,
             sleepHours: 5,
-            systolicBP: 145,
-            diastolicBP: 92,
-            fastingGlucose: 145,
+            systolicBP: 120,
+            diastolicBP: 80,
+            fastingGlucose: 120,
             notes: "Poor sleep, high stress at work",
           },
           {
             date: "2024-01-21",
             steps: 5800,
             sleepHours: 6,
-            systolicBP: 138,
-            diastolicBP: 88,
+            systolicBP: 120,
+            diastolicBP: 83,
             fastingGlucose: 128,
             notes: "Better sleep, morning walk",
           },
@@ -172,8 +172,8 @@ useEffect(() => {
             date: "2024-01-22",
             steps: 6200,
             sleepHours: 6.5,
-            systolicBP: 135,
-            diastolicBP: 85,
+            systolicBP: 120,
+            diastolicBP: 80,
             fastingGlucose: 122,
             notes: "Regular breakfast",
           },
@@ -181,17 +181,17 @@ useEffect(() => {
             date: "2024-01-23",
             steps: 3800,
             sleepHours: 4.5,
-            systolicBP: 152,
-            diastolicBP: 95,
-            fastingGlucose: 155,
+            systolicBP: 126,
+            diastolicBP: 85,
+            fastingGlucose: 115,
             notes: "High stress, ate outside",
           },
           {
             date: "2024-01-24",
             steps: 7200,
             sleepHours: 7,
-            systolicBP: 132,
-            diastolicBP: 82,
+            systolicBP: 120,
+            diastolicBP: 80,
             fastingGlucose: 118,
             notes: "Good exercise, better diet",
           },
@@ -199,7 +199,7 @@ useEffect(() => {
             date: "2024-01-25",
             steps: 6500,
             sleepHours: 6.5,
-            systolicBP: 138,
+            systolicBP: 128,
             diastolicBP: 86,
             fastingGlucose: 125,
             notes: "Consistent routine",
@@ -208,8 +208,8 @@ useEffect(() => {
             date: "2024-01-26",
             steps: 2500,
             sleepHours: 5,
-            systolicBP: 160,
-            diastolicBP: 98,
+            systolicBP: 120,
+            diastolicBP: 78,
             fastingGlucose: 160,
             notes: "Day 7 - Lowest activity and sleep",
           },
@@ -217,8 +217,8 @@ useEffect(() => {
             date: "2024-01-27",
             steps: 5500,
             sleepHours: 6.5,
-            systolicBP: 140,
-            diastolicBP: 87,
+            systolicBP: 115,
+            diastolicBP: 80,
             fastingGlucose: 130,
             notes: "Recovery day",
           },
@@ -226,8 +226,8 @@ useEffect(() => {
             date: "2024-01-28",
             steps: 6800,
             sleepHours: 7,
-            systolicBP: 134,
-            diastolicBP: 83,
+            systolicBP: 120,
+            diastolicBP: 80,
             fastingGlucose: 120,
             notes: "Back on track",
           },
@@ -235,7 +235,7 @@ useEffect(() => {
             date: "2024-01-29",
             steps: 7000,
             sleepHours: 7.5,
-            systolicBP: 130,
+            systolicBP: 125,
             diastolicBP: 80,
             fastingGlucose: 115,
             notes: "Best day of the week",
@@ -275,9 +275,18 @@ useEffect(() => {
   };
 
   const updateHealthProfile = (profile: UserHealthProfile) => {
-    setHealthProfile(profile);
-    localStorage.setItem("healthProfile", JSON.stringify(profile));
+  const updatedProfile = {
+    ...profile,
+    dailyMetrics: [...profile.dailyMetrics],
+    medicalHistory: { ...profile.medicalHistory },
+    familyHistory: { ...profile.familyHistory },
+    lifestyle: { ...profile.lifestyle },
+    lastUpdated: new Date().toISOString(),
   };
+
+  setHealthProfile(updatedProfile);
+  localStorage.setItem("healthProfile", JSON.stringify(updatedProfile));
+};
 
   return (
     <AuthContext.Provider
